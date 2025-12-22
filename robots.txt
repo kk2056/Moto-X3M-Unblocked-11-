@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://motox3m2025.online/sitemap.xml
