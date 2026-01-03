@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
 
 /** 
@@ -67,7 +66,6 @@ const Header: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // In this simple version, we just go home
     navigate('/');
   };
 
@@ -183,11 +181,6 @@ const Home: React.FC = () => (
 
       <div className="flex items-center justify-between mb-6 border-b border-gray-800 pb-4">
         <h2 className="text-2xl font-black uppercase italic tracking-tighter">Trending Games</h2>
-        <div className="text-xs font-bold text-orange-500 uppercase flex space-x-2">
-          <span>Sort by:</span>
-          <button className="underline decoration-2 underline-offset-4">Hot</button>
-          <button className="opacity-50">New</button>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -202,23 +195,6 @@ const Home: React.FC = () => (
     <section className="mt-12 text-gray-400 prose prose-invert max-w-none">
       <h2 className="text-2xl font-bold text-white mb-4">How to Play Moto X3M Unblocked</h2>
       <p>Moto X3M is a fantastic bike racing game with 22 challenging levels. Each level features a series of obstacles and stunts that you must navigate. The faster you complete the level, the more stars you earn.</p>
-      
-      <h3 className="text-lg font-bold text-white mt-6 mb-2">Controls:</h3>
-      <ul className="list-disc pl-5 space-y-2">
-        <li><strong>Arrow Up / W:</strong> Accelerate</li>
-        <li><strong>Arrow Down / S:</strong> Brake</li>
-        <li><strong>Arrow Left / A:</strong> Tilt Back / Balance</li>
-        <li><strong>Arrow Right / D:</strong> Tilt Forward / Balance</li>
-        <li><strong>R:</strong> Restart level</li>
-      </ul>
-      
-      <h3 className="text-lg font-bold text-white mt-6 mb-2">Pro Tips for School Players:</h3>
-      <ul className="list-disc pl-5 space-y-2">
-        <li>Perform flips in the air to reduce your race time. Each flip takes 0.5 seconds off the clock.</li>
-        <li>Landing on your rear wheel first is often safer on steep hills.</li>
-        <li>Don't hold the accelerate button constantly; sometimes you need to coast to maintain control.</li>
-        <li>If you get stuck, use the 'R' key to instantly restart the checkpoint.</li>
-      </ul>
     </section>
   </main>
 );
@@ -228,50 +204,80 @@ const GamePlayer: React.FC = () => {
   const navigate = useNavigate();
   const game = GAMES.find(g => g.id === id);
 
+  // Keyboard shortcut for Fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'f') {
+        const el = document.querySelector('iframe');
+        if (el?.requestFullscreen) el.requestFullscreen();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // AdSense Push
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      console.error("AdSense Error", e);
+    }
+  }, [id]);
+
   if (!game) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-4xl font-black text-red-600 mb-4">GAME NOT FOUND</h2>
-        <button 
-          onClick={() => navigate('/')}
-          className="bg-orange-600 text-white px-6 py-3 rounded font-bold"
-        >
-          BACK TO HOME
-        </button>
+        <button onClick={() => navigate('/')} className="bg-orange-600 text-white px-6 py-3 rounded font-bold">BACK TO HOME</button>
       </div>
     );
   }
+
+  const handleFullscreen = () => {
+    const el = document.querySelector('iframe');
+    if (el?.requestFullscreen) el.requestFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <div className="bg-black py-2 px-4 flex justify-between items-center text-xs font-bold border-b border-gray-800">
         <div className="flex items-center space-x-4">
-          <Link to="/" className="text-orange-500 hover:text-orange-400">HOME</Link>
+          <Link to="/" className="text-orange-500 hover:text-orange-400 uppercase">Home</Link>
           <span className="text-gray-700">/</span>
           <span className="text-white uppercase">{game.title}</span>
         </div>
         <div className="flex items-center space-x-3">
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-gray-300"
-          >
-            RELOAD
-          </button>
-          <button 
-            onClick={() => {
-              const el = document.querySelector('iframe');
-              if (el?.requestFullscreen) el.requestFullscreen();
-            }}
-            className="bg-orange-600 hover:bg-orange-500 text-white px-3 py-1 rounded"
-          >
-            FULLSCREEN
-          </button>
+          <button onClick={() => window.location.reload()} className="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-gray-300">RELOAD</button>
+          <button onClick={handleFullscreen} className="bg-orange-600 hover:bg-orange-500 text-white px-3 py-1 rounded">FULLSCREEN</button>
         </div>
       </div>
 
-      <div className="flex-1 bg-black flex flex-col items-center">
-        <div className="w-full max-w-6xl mx-auto p-4 flex-1 flex flex-col">
-          <div className="relative flex-1 bg-gray-900 rounded-lg overflow-hidden border border-gray-800 shadow-2xl min-h-[500px]">
+      <div className="flex-1 bg-black flex flex-col items-center pt-6">
+        <div className="w-full max-w-6xl mx-auto px-4 flex-1 flex flex-col">
+          
+          {/* Task 2: Mobile Adaptation Tip */}
+          <div className="text-center text-white bg-purple-800 p-4 rounded-lg mb-6 max-w-md mx-auto shadow-lg animate-pulse">
+            Tip: Rotate to landscape mode for better mobile experience! Perfect on phone or Chromebook.
+          </div>
+
+          {/* Task 3: Optimized Full Screen Button */}
+          <button 
+            onClick={handleFullscreen} 
+            className="block mx-auto bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-xl text-xl mb-6 shadow-xl transition-transform active:scale-95"
+          >
+            Play Full Screen (Press F - Ultimate Experience!)
+          </button>
+
+          {/* Task 4: Fullscreen Hint Text */}
+          <div className="text-center text-white bg-blue-800 p-4 rounded-lg mb-6 max-w-lg mx-auto border border-blue-400">
+            Press F for fullscreen - No lag, full immersion on any device!
+          </div>
+
+          {/* Game Frame */}
+          <div className="relative flex-1 bg-gray-900 rounded-lg overflow-hidden border border-gray-800 shadow-2xl min-h-[500px] mb-8">
             <iframe 
               src={game.url} 
               allowFullScreen
@@ -281,21 +287,24 @@ const GamePlayer: React.FC = () => {
               className="w-full h-full border-none absolute inset-0"
             ></iframe>
           </div>
+
+          {/* Task 1: AdSense Bottom Slot */}
+          <div className="ad-bottom mt-8 text-center bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+            <ins className="adsbygoogle"
+                 style={{ display: 'block' }}
+                 data-ad-client="ca-pub-9774042341049510"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+          </div>
           
-          <div className="mt-6 flex flex-col md:flex-row gap-8">
+          <div className="mt-12 flex flex-col md:flex-row gap-8">
             <div className="flex-1">
               <h1 className="text-3xl font-black italic text-white uppercase mb-2">{game.title}</h1>
               <div className="flex gap-2 mb-4">
-                <span className="bg-gray-800 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Official Source
-                </span>
-                <span className="bg-green-900/30 px-3 py-1 rounded-full text-[10px] font-bold text-green-500 uppercase tracking-widest">
-                  Safe & Secure
-                </span>
+                <span className="bg-gray-800 px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 uppercase tracking-widest">Official Source</span>
+                <span className="bg-green-900/30 px-3 py-1 rounded-full text-[10px] font-bold text-green-500 uppercase tracking-widest">Safe & Secure</span>
               </div>
-              <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                {game.description}
-              </p>
+              <p className="text-gray-400 text-sm leading-relaxed mb-6">{game.description}</p>
               
               <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
                 <h3 className="font-bold text-white mb-4 uppercase text-sm">Game Controls</h3>
@@ -319,54 +328,55 @@ const GamePlayer: React.FC = () => {
                 </div>
               </div>
 
-              {/* Task 1: Strategy Guide Section */}
-              <div className="strategy mt-8 text-gray-300 p-4 bg-gray-800 rounded-lg">
+              {/* Strategy Guide Section */}
+              <div className="strategy mt-8 text-gray-300 p-6 bg-gray-800 rounded-lg border-l-4 border-orange-500">
+                <p className="font-bold text-white mb-2 uppercase tracking-wide">Stunt Strategy Guide:</p>
                 Put on your helmet and rev the engine! Moto X3M Unblocked 2025 is the craziest motorbike stunt game on the web. You must navigate tracks filled with explosives, spikes, moving saws, and giant loops. Based on physics, controlling your bike's center of gravity is crucial. Performing front flips or backflips isn't just for style—it reduces your time, helping you get 3 stars.
                 <br /><br />
                 Racing Tip: Sometimes, speed isn't the answer. Slow down to observe the timing of traps. However, when facing a loop or a cliff jump, full throttle is required. Landing on your back wheel can give you a slight speed boost. With dozens of levels available, Moto X3M is the perfect adrenaline rush for boring study halls.
               </div>
 
-              {/* Task 2: Internal Links Section */}
+              {/* Internal Links Section */}
               <div className="other-games mt-8 bg-gray-900 p-6 rounded-lg shadow-lg border border-gray-700">
-                <h3 className="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">More Unblocked Games 2025</h3>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 list-none">
-                  <li className="mb-2"><a href="https://snakegame.cfd" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Snake Game Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://playzero2025.sbs" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Zero Lag Games Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://freegames2025.sbs" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Free Games Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://nodownload2025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play No Download Games Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://unblocked2025.cfd" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Unblocked Games 2025 (Main)</a></li>
-                  <li className="mb-2"><a href="https://unblocked2025.sbs" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Best Unblocked Games 2025</a></li>
-                  <li className="mb-2"><a href="https://promax.it.com" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play ProMax Games Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://retrobowl2025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Retro Bowl Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://1v1lol2025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play 1v1.LOL Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://drift2025.site" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Drift Hunters Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://slope2025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Slope Game Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://gd2025.site" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Geometry Dash Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://motox3m2025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Moto X3M Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://surfers2025.site" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Subway Surfers Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://run32025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Run 3 Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://fireboy2025.site" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Fireboy & Watergirl Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://paperio2025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Paper.io Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://driftbest2025.site" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Drift Hunters MAX Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://gd-full2025.site" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Geometry Dash Full Unblocked 2025</a></li>
-                  <li className="mb-2"><a href="https://subway2025.online" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Play Subway Surfers World Unblocked 2025</a></li>
+                <h3 className="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2 uppercase tracking-tighter">More Unblocked Games 2025</h3>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 list-none">
+                  <li><a href="https://snakegame.cfd" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Snake Game Unblocked 2025</a></li>
+                  <li><a href="https://playzero2025.sbs" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Zero Lag Games Unblocked 2025</a></li>
+                  <li><a href="https://freegames2025.sbs" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Free Games Unblocked 2025</a></li>
+                  <li><a href="https://nodownload2025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play No Download Games Unblocked 2025</a></li>
+                  <li><a href="https://unblocked2025.cfd" className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-bold">Play Unblocked Games 2025 (Main)</a></li>
+                  <li><a href="https://unblocked2025.sbs" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Best Unblocked Games 2025</a></li>
+                  <li><a href="https://promax.it.com" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play ProMax Games Unblocked 2025</a></li>
+                  <li><a href="https://retrobowl2025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Retro Bowl Unblocked 2025</a></li>
+                  <li><a href="https://1v1lol2025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play 1v1.LOL Unblocked 2025</a></li>
+                  <li><a href="https://drift2025.site" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Drift Hunters Unblocked 2025</a></li>
+                  <li><a href="https://slope2025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Slope Game Unblocked 2025</a></li>
+                  <li><a href="https://gd2025.site" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Geometry Dash Unblocked 2025</a></li>
+                  <li><a href="https://motox3m2025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Moto X3M Unblocked 2025</a></li>
+                  <li><a href="https://surfers2025.site" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Subway Surfers Unblocked 2025</a></li>
+                  <li><a href="https://run32025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Run 3 Unblocked 2025</a></li>
+                  <li><a href="https://fireboy2025.site" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Fireboy & Watergirl Unblocked 2025</a></li>
+                  <li><a href="https://paperio2025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Paper.io Unblocked 2025</a></li>
+                  <li><a href="https://driftbest2025.site" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Drift Hunters MAX Unblocked 2025</a></li>
+                  <li><a href="https://gd-full2025.site" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Geometry Dash Full Unblocked 2025</a></li>
+                  <li><a href="https://subway2025.online" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">Play Subway Surfers World Unblocked 2025</a></li>
                 </ul>
               </div>
             </div>
 
             <div className="w-full md:w-80">
               <div className="bg-gray-800/50 rounded-xl p-4 text-center mb-6">
-                <span className="text-gray-500 text-[10px] font-bold uppercase block mb-2">Promoted Content</span>
+                <span className="text-gray-500 text-[10px] font-bold uppercase block mb-2 tracking-widest">Sponsored</span>
                 <div className="h-48 bg-gray-900 rounded border border-dashed border-gray-700 flex items-center justify-center">
-                   <span className="text-gray-700 text-xs font-bold uppercase tracking-widest">Ad Placeholder</span>
+                   <span className="text-gray-700 text-xs font-bold uppercase tracking-widest">Ad Slot</span>
                 </div>
               </div>
 
-              <h3 className="font-bold text-white mb-4 uppercase text-xs">More Stunts</h3>
+              <h3 className="font-bold text-white mb-4 uppercase text-xs tracking-widest border-b border-gray-800 pb-2">More Stunts</h3>
               <div className="space-y-4">
                 {GAMES.filter(g => g.id !== id).map(related => (
                   <Link key={related.id} to={`/game/${related.id}`} className="flex gap-3 group">
-                    <div className="w-20 aspect-video bg-gray-800 rounded overflow-hidden flex items-center justify-center">
+                    <div className="w-20 aspect-video bg-gray-800 rounded overflow-hidden flex items-center justify-center border border-transparent group-hover:border-orange-500 transition-all">
                        <span className="text-[10px] font-bold text-gray-600 group-hover:text-orange-500">{related.thumbnailText}</span>
                     </div>
                     <div>
